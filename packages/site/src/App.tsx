@@ -6,6 +6,7 @@ import {
     Field,
     Heading,
     HStack,
+    IconButton,
     NumberInput,
     parseColor,
     Portal,
@@ -32,6 +33,8 @@ import {
 } from '@/constants/constants';
 import GitHubButton from '@/GithubButton';
 import { getPositionWithAspectRatio } from '@/util';
+import { FiDownload, FiZoomIn, FiZoomOut } from 'react-icons/fi';
+import { IoReload } from 'react-icons/io5';
 
 type ValueChangeDetails = { value: string; valueAsNumber: number };
 
@@ -95,12 +98,49 @@ function App() {
         setJuliaEnabled(juliaEnabled);
     }, [DEFAULT_CANVAS_SIZE_KEY]);
 
-    const handleDownloadImage = useCallback(() => {
+    const handleDownloadMandelbrotFractal = useCallback(() => {
         mandelbrotRef.current?.downloadImage();
     }, []);
+    const handleResetMandelbrotFractal = useCallback(() => {
+        setPosition(
+            getPositionWithAspectRatio(
+                DEFAULT_POSITION,
+                getCanvasSize(canvasSize, juliaEnabled).width,
+                getCanvasSize(canvasSize, juliaEnabled).height,
+            ),
+        );
+        setPositionJulia(
+            getPositionWithAspectRatio(
+                DEFAULT_POSITION_JULIA,
+                getCanvasSize(canvasSize, juliaEnabled).width,
+                getCanvasSize(canvasSize, juliaEnabled).height,
+            ),
+        );
+    }, [canvasSize, juliaEnabled]);
+    const handleZoomInMandelbrot = useCallback(() => {
+        mandelbrotRef.current?.click(0.5, 0.5, 2);
+    }, []);
+    const handleZoomOutMandelbrot = useCallback(() => {
+        mandelbrotRef.current?.click(0.5, 0.5, 0.5);
+    }, []);
 
-    const handleZoom = useCallback((zoom: number) => {
-        mandelbrotRef.current?.click(0.5, 0.5, zoom);
+    const handleDownloadJuliaFractal = useCallback(() => {
+        juliaRef.current?.downloadImage();
+    }, []);
+    const handleResetJuliaFractal = useCallback(() => {
+        setPositionJulia(
+            getPositionWithAspectRatio(
+                DEFAULT_POSITION_JULIA,
+                getCanvasSize(canvasSize, juliaEnabled).width,
+                getCanvasSize(canvasSize, juliaEnabled).height,
+            ),
+        );
+    }, [canvasSize, juliaEnabled]);
+    const handleZoomInJulia = useCallback(() => {
+        juliaRef.current?.click(0.5, 0.5, 2);
+    }, []);
+    const handleZoomOutJulia = useCallback(() => {
+        juliaRef.current?.click(0.5, 0.5, 0.5);
     }, []);
 
     const convergedColorHex = useMemo(() => convergedColor.toString('hex'), [convergedColor]);
@@ -128,68 +168,46 @@ function App() {
                     gap="32px"
                     flexWrap="wrap"
                 >
-                    <Stack>
-                        <HStack>
-                            <Button
-                                size="sm"
-                                colorPalette="black"
-                                variant="outline"
-                                onClick={() => handleZoom(2)}
-                            >
-                                Zoom +
-                            </Button>
-                            <Button
-                                size="sm"
-                                colorPalette="black"
-                                variant="outline"
-                                onClick={() => handleZoom(0.5)}
-                            >
-                                Zoom -
-                            </Button>
-                        </HStack>
-                        <Switch.Root
-                            size="lg"
-                            checked={mouseWheelEnabled}
-                            onCheckedChange={(e: { checked: boolean }) =>
-                                setMouseWheelEnabled(e.checked)
-                            }
-                        >
-                            <Switch.HiddenInput />
-                            <Switch.Control>
-                                <Switch.Thumb>
-                                    <Switch.ThumbIndicator fallback={<HiX color="black" />}>
-                                        <HiCheck />
-                                    </Switch.ThumbIndicator>
-                                </Switch.Thumb>
-                            </Switch.Control>
-                            <Switch.Label>Use mouse wheel to zoom</Switch.Label>
-                        </Switch.Root>
-                        <Switch.Root
-                            size="lg"
-                            checked={juliaEnabled}
-                            onCheckedChange={(e: { checked: boolean }) => {
-                                const enabled = e.checked;
-                                setJuliaEnabled(enabled);
-                                const { width, height } = getCanvasSize(canvasSize, enabled);
-                                setPosition((old) =>
-                                    getPositionWithAspectRatio(old, width, height),
-                                );
-                                setPositionJulia((old) =>
-                                    getPositionWithAspectRatio(old, width, height),
-                                );
-                            }}
-                        >
-                            <Switch.HiddenInput />
-                            <Switch.Control>
-                                <Switch.Thumb>
-                                    <Switch.ThumbIndicator fallback={<HiX color="black" />}>
-                                        <HiCheck />
-                                    </Switch.ThumbIndicator>
-                                </Switch.Thumb>
-                            </Switch.Control>
-                            <Switch.Label>Show Julia fractal</Switch.Label>
-                        </Switch.Root>
-                    </Stack>
+                    <Switch.Root
+                        size="lg"
+                        checked={mouseWheelEnabled}
+                        onCheckedChange={(e: { checked: boolean }) =>
+                            setMouseWheelEnabled(e.checked)
+                        }
+                    >
+                        <Switch.HiddenInput />
+                        <Switch.Control>
+                            <Switch.Thumb>
+                                <Switch.ThumbIndicator fallback={<HiX color="black" />}>
+                                    <HiCheck />
+                                </Switch.ThumbIndicator>
+                            </Switch.Thumb>
+                        </Switch.Control>
+                        <Switch.Label>Use mouse wheel to zoom</Switch.Label>
+                    </Switch.Root>
+                    <Switch.Root
+                        size="lg"
+                        checked={juliaEnabled}
+                        onCheckedChange={(e: { checked: boolean }) => {
+                            const enabled = e.checked;
+                            setJuliaEnabled(enabled);
+                            const { width, height } = getCanvasSize(canvasSize, enabled);
+                            setPosition((old) => getPositionWithAspectRatio(old, width, height));
+                            setPositionJulia((old) =>
+                                getPositionWithAspectRatio(old, width, height),
+                            );
+                        }}
+                    >
+                        <Switch.HiddenInput />
+                        <Switch.Control>
+                            <Switch.Thumb>
+                                <Switch.ThumbIndicator fallback={<HiX color="black" />}>
+                                    <HiCheck />
+                                </Switch.ThumbIndicator>
+                            </Switch.Thumb>
+                        </Switch.Control>
+                        <Switch.Label>Show Julia fractal</Switch.Label>
+                    </Switch.Root>
                 </HStack>
                 <Box marginTop="8px">
                     <HStack
@@ -283,68 +301,57 @@ function App() {
                                 </ColorPicker.Positioner>
                             </Portal>
                         </ColorPicker.Root>
+                        <Slider.Root
+                            width="150px"
+                            value={[colorOffset]}
+                            onValueChange={(e: { value: number[] }) => setColorOffset(e.value[0])}
+                            max={colorPalette.length ? colorPalette.length - 1 : 1}
+                            min={0}
+                        >
+                            <Slider.Label>Color offset</Slider.Label>
+                            <Slider.Control>
+                                <Slider.Track>
+                                    <Slider.Range />
+                                </Slider.Track>
+                                <Slider.Thumbs />
+                            </Slider.Control>
+                        </Slider.Root>
+                        <Select.Root
+                            collection={colorPalettes}
+                            width="150px"
+                            value={[colorPaletteKey]}
+                            onValueChange={(e: { value: string[] }) => {
+                                setColorPalette(e.value[0] as ColorPaletteKey);
+                                setColorOffset(0);
+                            }}
+                        >
+                            <Select.HiddenSelect />
+                            <Select.Label>Color palette</Select.Label>
+                            <Select.Control>
+                                <Select.Trigger>
+                                    <Select.ValueText placeholder="Select color palette" />
+                                </Select.Trigger>
+                                <Select.IndicatorGroup>
+                                    <Select.Indicator />
+                                </Select.IndicatorGroup>
+                            </Select.Control>
+                            <Portal>
+                                <Select.Positioner>
+                                    <Select.Content>
+                                        {colorPalettes.items.map((palette) => (
+                                            <Select.Item
+                                                item={palette}
+                                                key={palette.value}
+                                            >
+                                                {palette.label}
+                                                <Select.ItemIndicator />
+                                            </Select.Item>
+                                        ))}
+                                    </Select.Content>
+                                </Select.Positioner>
+                            </Portal>
+                        </Select.Root>
                         <Stack>
-                            <Slider.Root
-                                width="150px"
-                                value={[colorOffset]}
-                                onValueChange={(e: { value: number[] }) =>
-                                    setColorOffset(e.value[0])
-                                }
-                                max={colorPalette.length ? colorPalette.length - 1 : 1}
-                                min={0}
-                            >
-                                <Slider.Label>Color offset</Slider.Label>
-                                <Slider.Control>
-                                    <Slider.Track>
-                                        <Slider.Range />
-                                    </Slider.Track>
-                                    <Slider.Thumbs />
-                                </Slider.Control>
-                            </Slider.Root>
-                            <Select.Root
-                                collection={colorPalettes}
-                                width="150px"
-                                value={[colorPaletteKey]}
-                                onValueChange={(e: { value: string[] }) => {
-                                    setColorPalette(e.value[0] as ColorPaletteKey);
-                                    setColorOffset(0);
-                                }}
-                            >
-                                <Select.HiddenSelect />
-                                <Select.Label>Color palette</Select.Label>
-                                <Select.Control>
-                                    <Select.Trigger>
-                                        <Select.ValueText placeholder="Select color palette" />
-                                    </Select.Trigger>
-                                    <Select.IndicatorGroup>
-                                        <Select.Indicator />
-                                    </Select.IndicatorGroup>
-                                </Select.Control>
-                                <Portal>
-                                    <Select.Positioner>
-                                        <Select.Content>
-                                            {colorPalettes.items.map((palette) => (
-                                                <Select.Item
-                                                    item={palette}
-                                                    key={palette.value}
-                                                >
-                                                    {palette.label}
-                                                    <Select.ItemIndicator />
-                                                </Select.Item>
-                                            ))}
-                                        </Select.Content>
-                                    </Select.Positioner>
-                                </Portal>
-                            </Select.Root>
-                        </Stack>
-                        <Stack>
-                            <Button
-                                colorPalette="blue"
-                                variant="surface"
-                                onClick={handleDownloadImage}
-                            >
-                                Download image
-                            </Button>
                             <Button
                                 colorPalette="red"
                                 variant="surface"
@@ -356,7 +363,6 @@ function App() {
                     </HStack>
                 </Box>
             </Stack>
-            {/* <Separator /> */}
             <div
                 style={{
                     display: 'flex',
@@ -366,43 +372,129 @@ function App() {
                     minHeight: '100vh',
                 }}
             >
-                <Mandelbrot
-                    ref={mandelbrotRef}
-                    width={width}
-                    height={height}
-                    position={position}
-                    iterations={iterations}
-                    onPositionChange={(pos) => {
-                        setPosition(pos);
-                        setPositionJulia(
-                            getPositionWithAspectRatio(
-                                DEFAULT_POSITION_JULIA,
-                                CANVAS_SIZES[canvasSize].width,
-                                CANVAS_SIZES[canvasSize].height,
-                            ),
-                        );
-                    }}
-                    mouseWheelEnabled={mouseWheelEnabled}
-                    colorOffset={colorOffset}
-                    convergedColor={convergedColorHex}
-                    colorPalette={colorPalette}
-                />
-                {juliaEnabled && (
+                <div style={{ position: 'relative' }}>
                     <Mandelbrot
-                        ref={juliaRef}
+                        ref={mandelbrotRef}
                         width={width}
                         height={height}
-                        position={positionJulia}
+                        position={position}
                         iterations={iterations}
-                        onPositionChange={setPositionJulia}
+                        onPositionChange={(pos) => {
+                            setPosition(pos);
+                            setPositionJulia(
+                                getPositionWithAspectRatio(
+                                    DEFAULT_POSITION_JULIA,
+                                    CANVAS_SIZES[canvasSize].width,
+                                    CANVAS_SIZES[canvasSize].height,
+                                ),
+                            );
+                        }}
                         mouseWheelEnabled={mouseWheelEnabled}
                         colorOffset={colorOffset}
                         convergedColor={convergedColorHex}
                         colorPalette={colorPalette}
-                        kind="julia"
-                        cRe={(position.x1 + position.x2) / 2}
-                        cIm={(position.y1 + position.y2) / 2}
                     />
+                    <div
+                        style={{
+                            position: 'absolute',
+                            bottom: '12px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            backgroundColor: 'rgba(7, 3, 22, 0.4)',
+                            backdropFilter: 'blur(12px)',
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <IconButton
+                            onClick={handleDownloadMandelbrotFractal}
+                            aria-label="Download Mandelbrot fractal"
+                            variant="ghost"
+                        >
+                            <FiDownload />
+                        </IconButton>
+                        <IconButton
+                            onClick={handleResetMandelbrotFractal}
+                            aria-label="Reset Mandelbrot fractal"
+                            variant="ghost"
+                        >
+                            <IoReload />
+                        </IconButton>
+                        <IconButton
+                            onClick={handleZoomInMandelbrot}
+                            aria-label="Zoom in"
+                            variant="ghost"
+                        >
+                            <FiZoomIn />
+                        </IconButton>
+                        <IconButton
+                            onClick={handleZoomOutMandelbrot}
+                            aria-label="Zoom out"
+                            variant="ghost"
+                        >
+                            <FiZoomOut />
+                        </IconButton>
+                    </div>
+                </div>
+                {juliaEnabled && (
+                    <div style={{ position: 'relative' }}>
+                        <Mandelbrot
+                            ref={juliaRef}
+                            width={width}
+                            height={height}
+                            position={positionJulia}
+                            iterations={iterations}
+                            onPositionChange={setPositionJulia}
+                            mouseWheelEnabled={mouseWheelEnabled}
+                            colorOffset={colorOffset}
+                            convergedColor={convergedColorHex}
+                            colorPalette={colorPalette}
+                            kind="julia"
+                            cRe={(position.x1 + position.x2) / 2}
+                            cIm={(position.y1 + position.y2) / 2}
+                        />
+                        <div
+                            style={{
+                                position: 'absolute',
+                                bottom: '12px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                backgroundColor: 'rgba(7, 3, 22, 0.4)',
+                                backdropFilter: 'blur(12px)',
+                                borderRadius: '12px',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <IconButton
+                                onClick={handleDownloadJuliaFractal}
+                                aria-label="Download Julia fractal"
+                                variant="ghost"
+                            >
+                                <FiDownload />
+                            </IconButton>
+                            <IconButton
+                                onClick={handleResetJuliaFractal}
+                                aria-label="Reset Julia fractal"
+                                variant="ghost"
+                            >
+                                <IoReload />
+                            </IconButton>
+                            <IconButton
+                                onClick={handleZoomInJulia}
+                                aria-label="Zoom in"
+                                variant="ghost"
+                            >
+                                <FiZoomIn />
+                            </IconButton>
+                            <IconButton
+                                onClick={handleZoomOutJulia}
+                                aria-label="Zoom out"
+                                variant="ghost"
+                            >
+                                <FiZoomOut />
+                            </IconButton>
+                        </div>
+                    </div>
                 )}
             </div>
         </>
