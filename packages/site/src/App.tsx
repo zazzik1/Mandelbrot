@@ -34,7 +34,7 @@ import {
 import GitHubButton from '@/GithubButton';
 import { getPositionWithAspectRatio } from '@/util';
 import { FiDownload, FiZoomIn, FiZoomOut } from 'react-icons/fi';
-import { IoReload } from 'react-icons/io5';
+import { IoChevronDown, IoChevronUp, IoReload } from 'react-icons/io5';
 import { Tooltip } from './components/ui/tooltip';
 
 type ValueChangeDetails = { value: string; valueAsNumber: number };
@@ -68,6 +68,7 @@ function App() {
     const [colorOffset, setColorOffset] = useState<number>(26);
     const [convergedColor, setConvergedColor] = useState(parseColor(DEFAULT_CONVERGED_COLOR));
     const [juliaEnabled, setJuliaEnabled] = useState(true);
+    const [settingsOpen, setSettingsOpen] = useState(true);
 
     const colorPalette = RGB_PALETTES[colorPaletteKey as ColorPaletteKey];
     const { width, height } = useMemo(() => {
@@ -152,217 +153,243 @@ function App() {
                 backdropFilter="blur(12px)"
                 zIndex={2}
                 position="absolute"
-                left="24px"
+                right="24px"
                 top="24px"
-                width="calc(100% - 48px)"
-                padding="24px"
+                transition="width 0.3s ease, padding 0.3s ease"
+                width={settingsOpen ? 'calc(100% - 48px)' : '96px'}
+                padding={settingsOpen ? '24px' : '8px'}
                 borderRadius="12px"
+                overflow="hidden"
             >
                 <HStack
                     justifyContent="space-between"
                     flexWrap="wrap"
+                    gap="0"
                 >
-                    <Heading size="2xl">Mandelbrot fractal generator</Heading>
-                    <GitHubButton />
+                    {settingsOpen ? (
+                        <Heading size="2xl">Mandelbrot fractal generator</Heading>
+                    ) : (
+                        <div></div>
+                    )}
+                    <HStack gap="0">
+                        <Tooltip content={settingsOpen ? 'Hide settings' : 'Open settings'}>
+                            <IconButton
+                                onClick={() => setSettingsOpen((old) => !old)}
+                                aria-label="Toggle settings"
+                                variant="ghost"
+                            >
+                                {settingsOpen ? <IoChevronUp /> : <IoChevronDown />}
+                            </IconButton>
+                        </Tooltip>
+                        <GitHubButton />
+                    </HStack>
                 </HStack>
-                <HStack
-                    gap="32px"
-                    flexWrap="wrap"
-                >
-                    <Switch.Root
-                        size="lg"
-                        checked={mouseWheelEnabled}
-                        onCheckedChange={(e: { checked: boolean }) =>
-                            setMouseWheelEnabled(e.checked)
-                        }
-                    >
-                        <Switch.HiddenInput />
-                        <Switch.Control>
-                            <Switch.Thumb>
-                                <Switch.ThumbIndicator fallback={<HiX color="black" />}>
-                                    <HiCheck />
-                                </Switch.ThumbIndicator>
-                            </Switch.Thumb>
-                        </Switch.Control>
-                        <Switch.Label>Use mouse wheel to zoom</Switch.Label>
-                    </Switch.Root>
-                    <Switch.Root
-                        size="lg"
-                        checked={juliaEnabled}
-                        onCheckedChange={(e: { checked: boolean }) => {
-                            const enabled = e.checked;
-                            setJuliaEnabled(enabled);
-                            const { width, height } = getCanvasSize(canvasSize, enabled);
-                            setPosition((old) => getPositionWithAspectRatio(old, width, height));
-                            setPositionJulia((old) =>
-                                getPositionWithAspectRatio(old, width, height),
-                            );
-                        }}
-                    >
-                        <Switch.HiddenInput />
-                        <Switch.Control>
-                            <Switch.Thumb>
-                                <Switch.ThumbIndicator fallback={<HiX color="black" />}>
-                                    <HiCheck />
-                                </Switch.ThumbIndicator>
-                            </Switch.Thumb>
-                        </Switch.Control>
-                        <Switch.Label>Show Julia fractal</Switch.Label>
-                    </Switch.Root>
-                </HStack>
-                <Box marginTop="8px">
+                {settingsOpen && (
                     <HStack
-                        alignItems="end"
+                        gap="32px"
                         flexWrap="wrap"
                     >
-                        <Field.Root width="max-content">
-                            <Field.Label>Max iterations (precision)</Field.Label>
-                            <NumberInput.Root
-                                maxW="200px"
-                                value={iterations.toString()}
-                                onValueChange={(e: ValueChangeDetails) =>
-                                    setIterations(
-                                        e.valueAsNumber > 0
-                                            ? e.valueAsNumber < 10001
-                                                ? e.valueAsNumber
-                                                : 10000
-                                            : 1,
-                                    )
-                                }
-                            >
-                                <NumberInput.Control />
-                                <NumberInput.Input />
-                            </NumberInput.Root>
-                        </Field.Root>
-                        <Select.Root
-                            collection={canvasSizes}
-                            width="150px"
-                            value={[canvasSize]}
-                            onValueChange={(e) => {
-                                const key = e.value[0] as CanvasSizeKey;
-                                const { width, height } = getCanvasSize(key, juliaEnabled);
+                        <Switch.Root
+                            size="lg"
+                            checked={mouseWheelEnabled}
+                            onCheckedChange={(e: { checked: boolean }) =>
+                                setMouseWheelEnabled(e.checked)
+                            }
+                        >
+                            <Switch.HiddenInput />
+                            <Switch.Control>
+                                <Switch.Thumb>
+                                    <Switch.ThumbIndicator fallback={<HiX color="black" />}>
+                                        <HiCheck />
+                                    </Switch.ThumbIndicator>
+                                </Switch.Thumb>
+                            </Switch.Control>
+                            <Switch.Label>Use mouse wheel to zoom</Switch.Label>
+                        </Switch.Root>
+                        <Switch.Root
+                            size="lg"
+                            checked={juliaEnabled}
+                            onCheckedChange={(e: { checked: boolean }) => {
+                                const enabled = e.checked;
+                                setJuliaEnabled(enabled);
+                                const { width, height } = getCanvasSize(canvasSize, enabled);
                                 setPosition((old) =>
                                     getPositionWithAspectRatio(old, width, height),
                                 );
                                 setPositionJulia((old) =>
                                     getPositionWithAspectRatio(old, width, height),
                                 );
-                                setCanvasSize(key);
                             }}
                         >
-                            <Select.HiddenSelect />
-                            <Select.Label>Canvas size</Select.Label>
-                            <Select.Control>
-                                <Select.Trigger>
-                                    <Select.ValueText placeholder="Select canvas size" />
-                                </Select.Trigger>
-                                <Select.IndicatorGroup>
-                                    <Select.Indicator />
-                                </Select.IndicatorGroup>
-                            </Select.Control>
-                            <Portal>
-                                <Select.Positioner>
-                                    <Select.Content>
-                                        {canvasSizes.items.map((size) => (
-                                            <Select.Item
-                                                item={size}
-                                                key={size.value}
-                                            >
-                                                {size.label}
-                                                <Select.ItemIndicator />
-                                            </Select.Item>
-                                        ))}
-                                    </Select.Content>
-                                </Select.Positioner>
-                            </Portal>
-                        </Select.Root>
-                        <ColorPicker.Root
-                            value={convergedColor}
-                            onValueChange={(e: { value: Color }) => setConvergedColor(e.value)}
-                            maxW="140px"
-                        >
-                            <ColorPicker.HiddenInput />
-                            <ColorPicker.Label>Converged color</ColorPicker.Label>
-                            <ColorPicker.Control>
-                                <ColorPicker.Input />
-                                <ColorPicker.Trigger />
-                            </ColorPicker.Control>
-                            <Portal>
-                                <ColorPicker.Positioner>
-                                    <ColorPicker.Content>
-                                        <ColorPicker.Area />
-                                        <HStack>
-                                            <ColorPicker.EyeDropper
-                                                size="xs"
-                                                variant="outline"
-                                            />
-                                            <ColorPicker.Sliders />
-                                        </HStack>
-                                    </ColorPicker.Content>
-                                </ColorPicker.Positioner>
-                            </Portal>
-                        </ColorPicker.Root>
-                        <Slider.Root
-                            width="150px"
-                            value={[colorOffset]}
-                            onValueChange={(e: { value: number[] }) => setColorOffset(e.value[0])}
-                            max={colorPalette.length ? colorPalette.length - 1 : 1}
-                            min={0}
-                        >
-                            <Slider.Label>Color offset</Slider.Label>
-                            <Slider.Control>
-                                <Slider.Track>
-                                    <Slider.Range />
-                                </Slider.Track>
-                                <Slider.Thumbs />
-                            </Slider.Control>
-                        </Slider.Root>
-                        <Select.Root
-                            collection={colorPalettes}
-                            width="150px"
-                            value={[colorPaletteKey]}
-                            onValueChange={(e: { value: string[] }) => {
-                                setColorPalette(e.value[0] as ColorPaletteKey);
-                                setColorOffset(0);
-                            }}
-                        >
-                            <Select.HiddenSelect />
-                            <Select.Label>Color palette</Select.Label>
-                            <Select.Control>
-                                <Select.Trigger>
-                                    <Select.ValueText placeholder="Select color palette" />
-                                </Select.Trigger>
-                                <Select.IndicatorGroup>
-                                    <Select.Indicator />
-                                </Select.IndicatorGroup>
-                            </Select.Control>
-                            <Portal>
-                                <Select.Positioner>
-                                    <Select.Content>
-                                        {colorPalettes.items.map((palette) => (
-                                            <Select.Item
-                                                item={palette}
-                                                key={palette.value}
-                                            >
-                                                {palette.label}
-                                                <Select.ItemIndicator />
-                                            </Select.Item>
-                                        ))}
-                                    </Select.Content>
-                                </Select.Positioner>
-                            </Portal>
-                        </Select.Root>
-                        <Stack>
-                            <Button
-                                colorPalette="red"
-                                variant="surface"
-                                onClick={handleResetSettings}
-                            >
-                                Reset settings
-                            </Button>
-                        </Stack>
+                            <Switch.HiddenInput />
+                            <Switch.Control>
+                                <Switch.Thumb>
+                                    <Switch.ThumbIndicator fallback={<HiX color="black" />}>
+                                        <HiCheck />
+                                    </Switch.ThumbIndicator>
+                                </Switch.Thumb>
+                            </Switch.Control>
+                            <Switch.Label>Show Julia fractal</Switch.Label>
+                        </Switch.Root>
                     </HStack>
-                </Box>
+                )}
+                {settingsOpen && (
+                    <Box marginTop="8px">
+                        <HStack
+                            alignItems="end"
+                            flexWrap="wrap"
+                        >
+                            <Field.Root width="max-content">
+                                <Field.Label>Max iterations (precision)</Field.Label>
+                                <NumberInput.Root
+                                    maxW="200px"
+                                    value={iterations.toString()}
+                                    onValueChange={(e: ValueChangeDetails) =>
+                                        setIterations(
+                                            e.valueAsNumber > 0
+                                                ? e.valueAsNumber < 10001
+                                                    ? e.valueAsNumber
+                                                    : 10000
+                                                : 1,
+                                        )
+                                    }
+                                >
+                                    <NumberInput.Control />
+                                    <NumberInput.Input />
+                                </NumberInput.Root>
+                            </Field.Root>
+                            <Select.Root
+                                collection={canvasSizes}
+                                width="150px"
+                                value={[canvasSize]}
+                                onValueChange={(e) => {
+                                    const key = e.value[0] as CanvasSizeKey;
+                                    const { width, height } = getCanvasSize(key, juliaEnabled);
+                                    setPosition((old) =>
+                                        getPositionWithAspectRatio(old, width, height),
+                                    );
+                                    setPositionJulia((old) =>
+                                        getPositionWithAspectRatio(old, width, height),
+                                    );
+                                    setCanvasSize(key);
+                                }}
+                            >
+                                <Select.HiddenSelect />
+                                <Select.Label>Canvas size</Select.Label>
+                                <Select.Control>
+                                    <Select.Trigger>
+                                        <Select.ValueText placeholder="Select canvas size" />
+                                    </Select.Trigger>
+                                    <Select.IndicatorGroup>
+                                        <Select.Indicator />
+                                    </Select.IndicatorGroup>
+                                </Select.Control>
+                                <Portal>
+                                    <Select.Positioner>
+                                        <Select.Content>
+                                            {canvasSizes.items.map((size) => (
+                                                <Select.Item
+                                                    item={size}
+                                                    key={size.value}
+                                                >
+                                                    {size.label}
+                                                    <Select.ItemIndicator />
+                                                </Select.Item>
+                                            ))}
+                                        </Select.Content>
+                                    </Select.Positioner>
+                                </Portal>
+                            </Select.Root>
+                            <ColorPicker.Root
+                                value={convergedColor}
+                                onValueChange={(e: { value: Color }) => setConvergedColor(e.value)}
+                                maxW="140px"
+                            >
+                                <ColorPicker.HiddenInput />
+                                <ColorPicker.Label>Converged color</ColorPicker.Label>
+                                <ColorPicker.Control>
+                                    <ColorPicker.Input />
+                                    <ColorPicker.Trigger />
+                                </ColorPicker.Control>
+                                <Portal>
+                                    <ColorPicker.Positioner>
+                                        <ColorPicker.Content>
+                                            <ColorPicker.Area />
+                                            <HStack>
+                                                <ColorPicker.EyeDropper
+                                                    size="xs"
+                                                    variant="outline"
+                                                />
+                                                <ColorPicker.Sliders />
+                                            </HStack>
+                                        </ColorPicker.Content>
+                                    </ColorPicker.Positioner>
+                                </Portal>
+                            </ColorPicker.Root>
+                            <Slider.Root
+                                width="150px"
+                                value={[colorOffset]}
+                                onValueChange={(e: { value: number[] }) =>
+                                    setColorOffset(e.value[0])
+                                }
+                                max={colorPalette.length ? colorPalette.length - 1 : 1}
+                                min={0}
+                            >
+                                <Slider.Label>Color offset</Slider.Label>
+                                <Slider.Control>
+                                    <Slider.Track>
+                                        <Slider.Range />
+                                    </Slider.Track>
+                                    <Slider.Thumbs />
+                                </Slider.Control>
+                            </Slider.Root>
+                            <Select.Root
+                                collection={colorPalettes}
+                                width="150px"
+                                value={[colorPaletteKey]}
+                                onValueChange={(e: { value: string[] }) => {
+                                    setColorPalette(e.value[0] as ColorPaletteKey);
+                                    setColorOffset(0);
+                                }}
+                            >
+                                <Select.HiddenSelect />
+                                <Select.Label>Color palette</Select.Label>
+                                <Select.Control>
+                                    <Select.Trigger>
+                                        <Select.ValueText placeholder="Select color palette" />
+                                    </Select.Trigger>
+                                    <Select.IndicatorGroup>
+                                        <Select.Indicator />
+                                    </Select.IndicatorGroup>
+                                </Select.Control>
+                                <Portal>
+                                    <Select.Positioner>
+                                        <Select.Content>
+                                            {colorPalettes.items.map((palette) => (
+                                                <Select.Item
+                                                    item={palette}
+                                                    key={palette.value}
+                                                >
+                                                    {palette.label}
+                                                    <Select.ItemIndicator />
+                                                </Select.Item>
+                                            ))}
+                                        </Select.Content>
+                                    </Select.Positioner>
+                                </Portal>
+                            </Select.Root>
+                            <Stack>
+                                <Button
+                                    colorPalette="red"
+                                    variant="surface"
+                                    onClick={handleResetSettings}
+                                >
+                                    Reset settings
+                                </Button>
+                            </Stack>
+                        </HStack>
+                    </Box>
+                )}
             </Stack>
             <div
                 style={{
