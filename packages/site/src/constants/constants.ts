@@ -4,6 +4,7 @@ import { GRAY_PALETTE } from './colorPalettes/grayScale';
 import { PALETTE_2 } from './colorPalettes/palette2';
 import { PALETTE_3 } from './colorPalettes/palette3';
 import { RGBColorPalette } from '@/types';
+import { height, width } from 'happy-dom/lib/PropertySymbol';
 
 export const WHITE_ONLY_PALETTE: RGBColorPalette = [[255, 255, 255]];
 
@@ -21,6 +22,7 @@ export const DEFAULT_ITERATIONS: number = 100;
 export const DEFAULT_CONVERGED_COLOR: string = '#000000';
 
 export const CANVAS_SIZES = {
+    Fullscreen: { width: 1, height: 1 },
     '400x400': { width: 400, height: 400 },
     '500x500': { width: 500, height: 500 },
     '600x600': { width: 600, height: 600 },
@@ -34,10 +36,27 @@ export const CANVAS_SIZES = {
     '3840x2160 4K': { width: 3840, height: 2160 },
 };
 
+export function getCanvasSize(
+    key: CanvasSizeKey,
+    juliaEnabled: boolean,
+): { width: number; height: number } {
+    let width = CANVAS_SIZES[key].width;
+    let height = CANVAS_SIZES[key].height;
+    if (key === 'Fullscreen') {
+        height = window.innerHeight;
+        width = window.innerWidth;
+        if (juliaEnabled) {
+            width = window.innerWidth / 2;
+        }
+    }
+    return { width, height };
+}
+
 export type CanvasSizeKey = keyof typeof CANVAS_SIZES;
 
 export const canvasSizes = createListCollection({
     items: [
+        { label: 'Fullscreen', value: 'Fullscreen' },
         { label: '400x400', value: '400x400' },
         { label: '500x500', value: '500x500' },
         { label: '600x600', value: '600x600' },
@@ -65,6 +84,13 @@ export const colorPalettes = createListCollection({
 export const DEFAULT_POSITION = {
     x1: -2,
     x2: 1,
-    y1: -1.5,
-    y2: 1.5,
+    y1: -2,
+    y2: 2,
+};
+
+export const DEFAULT_POSITION_JULIA = {
+    x1: -2,
+    x2: 2,
+    y1: -2,
+    y2: 2,
 };
