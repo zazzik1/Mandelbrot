@@ -35,6 +35,7 @@ import GitHubButton from '@/GithubButton';
 import { getPositionWithAspectRatio } from '@/util';
 import { FiDownload, FiZoomIn, FiZoomOut } from 'react-icons/fi';
 import { IoReload } from 'react-icons/io5';
+import { Tooltip } from './components/ui/tooltip';
 
 type ValueChangeDetails = { value: string; valueAsNumber: number };
 
@@ -406,34 +407,42 @@ function App() {
                             overflow: 'hidden',
                         }}
                     >
-                        <IconButton
-                            onClick={handleDownloadMandelbrotFractal}
-                            aria-label="Download Mandelbrot fractal"
-                            variant="ghost"
-                        >
-                            <FiDownload />
-                        </IconButton>
-                        <IconButton
-                            onClick={handleResetMandelbrotFractal}
-                            aria-label="Reset Mandelbrot fractal"
-                            variant="ghost"
-                        >
-                            <IoReload />
-                        </IconButton>
-                        <IconButton
-                            onClick={handleZoomInMandelbrot}
-                            aria-label="Zoom in"
-                            variant="ghost"
-                        >
-                            <FiZoomIn />
-                        </IconButton>
-                        <IconButton
-                            onClick={handleZoomOutMandelbrot}
-                            aria-label="Zoom out"
-                            variant="ghost"
-                        >
-                            <FiZoomOut />
-                        </IconButton>
+                        <Tooltip content="Download Mandelbrot fractal">
+                            <IconButton
+                                onClick={handleDownloadMandelbrotFractal}
+                                aria-label="Download Mandelbrot fractal"
+                                variant="ghost"
+                            >
+                                <FiDownload />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip content="Reset Mandelbrot fractal position">
+                            <IconButton
+                                onClick={handleResetMandelbrotFractal}
+                                aria-label="Reset Mandelbrot fractal position"
+                                variant="ghost"
+                            >
+                                <IoReload />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip content="Zoom in">
+                            <IconButton
+                                onClick={handleZoomInMandelbrot}
+                                aria-label="Zoom in"
+                                variant="ghost"
+                            >
+                                <FiZoomIn />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip content="Zoom out">
+                            <IconButton
+                                onClick={handleZoomOutMandelbrot}
+                                aria-label="Zoom out"
+                                variant="ghost"
+                            >
+                                <FiZoomOut />
+                            </IconButton>
+                        </Tooltip>
                     </div>
                 </div>
                 {juliaEnabled && (
@@ -465,34 +474,42 @@ function App() {
                                 overflow: 'hidden',
                             }}
                         >
-                            <IconButton
-                                onClick={handleDownloadJuliaFractal}
-                                aria-label="Download Julia fractal"
-                                variant="ghost"
-                            >
-                                <FiDownload />
-                            </IconButton>
-                            <IconButton
-                                onClick={handleResetJuliaFractal}
-                                aria-label="Reset Julia fractal"
-                                variant="ghost"
-                            >
-                                <IoReload />
-                            </IconButton>
-                            <IconButton
-                                onClick={handleZoomInJulia}
-                                aria-label="Zoom in"
-                                variant="ghost"
-                            >
-                                <FiZoomIn />
-                            </IconButton>
-                            <IconButton
-                                onClick={handleZoomOutJulia}
-                                aria-label="Zoom out"
-                                variant="ghost"
-                            >
-                                <FiZoomOut />
-                            </IconButton>
+                            <Tooltip content="Download Julia fractal">
+                                <IconButton
+                                    onClick={handleDownloadJuliaFractal}
+                                    aria-label="Download Julia fractal"
+                                    variant="ghost"
+                                >
+                                    <FiDownload />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Reset Julia fractal position">
+                                <IconButton
+                                    onClick={handleResetJuliaFractal}
+                                    aria-label="Reset Julia fractal position"
+                                    variant="ghost"
+                                >
+                                    <IoReload />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Zoom in">
+                                <IconButton
+                                    onClick={handleZoomInJulia}
+                                    aria-label="Zoom in"
+                                    variant="ghost"
+                                >
+                                    <FiZoomIn />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip content="Zoom out">
+                                <IconButton
+                                    onClick={handleZoomOutJulia}
+                                    aria-label="Zoom out"
+                                    variant="ghost"
+                                >
+                                    <FiZoomOut />
+                                </IconButton>
+                            </Tooltip>
                         </div>
                     </div>
                 )}
