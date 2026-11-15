@@ -4,7 +4,6 @@ import { GRAY_PALETTE } from './colorPalettes/grayScale';
 import { PALETTE_2 } from './colorPalettes/palette2';
 import { PALETTE_3 } from './colorPalettes/palette3';
 import { RGBColorPalette } from '@/types';
-import { height, width } from 'happy-dom/lib/PropertySymbol';
 
 export const WHITE_ONLY_PALETTE: RGBColorPalette = [[255, 255, 255]];
 
